@@ -1,4 +1,5 @@
 import { renderMarkdown } from '../data/markdown.js';
+import { withBase } from '../router/router.js';
 
 function escapeHtml(value = '') {
   return String(value)
@@ -19,7 +20,7 @@ export function createStoryDetailPage(story) {
         <p class="eyebrow">ARCHIVE ENTRY NOT FOUND</p>
         <h1>This story isn't here.</h1>
         <p>The address may be incorrect, or this entry may not have an article yet.</p>
-        <a class="text-link" href="/story/moon" data-link>← Browse Moon stories</a>
+        <a class="text-link" href="${withBase('/story/moon')}" data-link>← Browse Moon stories</a>
       </div>
     `;
     return { element };
@@ -33,7 +34,7 @@ export function createStoryDetailPage(story) {
   element.innerHTML = `
     <article class="story-article">
       <nav class="breadcrumbs" aria-label="Breadcrumb">
-        <a href="/story/moon" data-link>Moon Stories</a>
+        <a href="${withBase('/story/moon')}" data-link>Moon Stories</a>
         <span>/</span>
         <span>${escapeHtml(story.name)}</span>
       </nav>
@@ -64,7 +65,7 @@ export function createStoryDetailPage(story) {
         : ''}
 
       <footer class="article-footer">
-        <a class="text-link" href="/story/${story.planet}" data-link>← Back to ${story.planet} stories</a>
+        <a class="text-link" href="${withBase(`/story/${story.planet}`)}" data-link>← Back to ${story.planet} stories</a>
       </footer>
     </article>
   `;

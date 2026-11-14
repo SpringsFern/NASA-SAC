@@ -38,7 +38,7 @@ export function createStoryPanel(container, navigate) {
       site.fact || '';
 
     if (site.url) {
-      storyLink.href = site.url;
+      storyLink.href = withBase(site.url);
       storyLink.hidden = false;
     } else {
       storyLink.removeAttribute('href');

@@ -1,6 +1,8 @@
+import { withBase } from '../router/router.js';
+
 const NAV_ITEMS = [
-  { label: 'Moon', href: '/', icon: '◐', group: 'explore' },
-  { label: 'Moon Stories', href: '/story/moon', icon: '▤', group: 'explore' },
+  { label: 'Moon', href: withBase('/'), icon: '◐', group: 'explore' },
+  { label: 'Moon Stories', href: withBase('/story/moon'), icon: '▤', group: 'explore' },
   { label: 'Mars', href: '#', icon: '◉', group: 'later', disabled: true },
   { label: 'Mars Stories', href: '#', icon: '▤', group: 'later', disabled: true }
 ];
@@ -9,7 +11,7 @@ export function createSidebar(root) {
   root.innerHTML = `
     <div class="sidebar">
       <div class="sidebar-brand">
-        <a class="brand-link" href="/" data-link aria-label="Beyond the Mission home">
+        <a class="brand-link" href="${withBase('/')}" data-link aria-label="Beyond the Mission home">
           <span class="brand-mark">◒</span>
           <span class="brand-name">BEYOND THE MISSION</span>
         </a>

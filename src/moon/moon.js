@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const MOON_MODEL = '/models/moon_topo_small.glb';
+const MOON_MODEL = `${import.meta.env.BASE_URL}models/moon_topo_small.glb`;
 
 export function loadMoon(scene, onProgress) {
   return new Promise((resolve, reject) => {

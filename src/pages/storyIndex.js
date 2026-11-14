@@ -1,3 +1,5 @@
+import { withBase } from '../router/router.js';
+
 function escapeHtml(value = '') {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -26,7 +28,7 @@ export function createStoryIndexPage({ stories, planet }) {
     `;
 
     return story.url
-      ? `<a class="story-card" href="${story.url}" data-link>${content}</a>`
+      ? `<a class="story-card" href="${withBase(story.url)}" data-link>${content}</a>`
       : `<article class="story-card is-unavailable">${content}</article>`;
   }).join('');
 
