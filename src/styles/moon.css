@@ -183,3 +183,13 @@
 .quick-story-link[hidden] {
   display: none;
 }
+
+
+/* Temporary notice while Mars reuses the Moon model and coordinates. */
+.planet-preview-note {
+  max-width: 620px;
+  margin-top: 12px;
+  color: #d8a879;
+  font-size: 12px;
+  line-height: 1.6;
+}

@@ -1,11 +1,14 @@
+import { withBase } from '../router/router.js';
 
-export function createStoryPanel(container, navigate) {
+
+export function createStoryPanel(container, navigate, planet = 'moon') {
+  const archiveLabel = planet === 'mars' ? 'MARTIAN ARCHIVE ENTRY' : 'LUNAR ARCHIVE ENTRY';
   const panel = document.createElement('aside');
   panel.className = 'quick-story-panel';
 
   panel.innerHTML = `
     <button class="quick-story-close" type="button" aria-label="Close story">×</button>
-    <p class="eyebrow">LUNAR ARCHIVE ENTRY</p>
+    <p class="eyebrow">${archiveLabel}</p>
     <h2 class="quick-story-title"></h2>
     <p class="quick-story-location"></p>
     <p class="quick-story-description"></p>

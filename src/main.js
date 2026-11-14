@@ -42,7 +42,14 @@ const router = createRouter((pathname) => {
 
   if (pathname === '/' || pathname === '/moon') {
     activePage = createMoonExplorerPage({
+      planet: 'moon',
       stories: stories.filter((story) => story.planet === 'moon'),
+      navigate: router.navigate
+    });
+  } else if (pathname === '/mars') {
+    activePage = createMoonExplorerPage({
+      planet: 'mars',
+      stories: stories.filter((story) => story.planet === 'mars'),
       navigate: router.navigate
     });
   } else if (pathname === '/story/moon') {

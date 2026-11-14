@@ -1,21 +1,25 @@
 import { createScene } from '../scene/scene.js';
 import { loadMoon } from '../moon/moon.js';
+import { loadMars } from '../mars/mars.js';
 import { applySurfacePainting } from '../moon/surfacePainting.js';
 import { createSiteManager } from '../sites/siteManager.js';
 import { createSitePicker } from '../sites/sitePicker.js';
 import { createStoryPanel } from '../ui/storyPanel.js';
 
-export function createMoonExplorerPage({ stories, navigate }) {
+export function createMoonExplorerPage({ stories, navigate, planet = 'moon' }) {
+  const isMars = planet === 'mars';
+  const planetName = isMars ? 'Mars' : 'The Moon';
   const element = document.createElement('section');
-  element.className = 'moon-page';
+  element.className = `moon-page ${isMars ? 'mars-page' : 'lunar-page'}`;
   element.innerHTML = `
     <div class="moon-heading">
-      <p class="eyebrow">INTERACTIVE LUNAR MAP</p>
-      <h1>The Moon</h1>
-      <p>Rotate the Moon and select a highlighted location to explore its story.</p>
+      <p class="eyebrow">${isMars ? 'INTERACTIVE MARS MAP' : 'INTERACTIVE LUNAR MAP'}</p>
+      <h1>${planetName}</h1>
+      <p>Rotate ${isMars ? 'Mars' : 'the Moon'} and select a highlighted location to explore its story.</p>
+      ${isMars ? '<p class="planet-preview-note">Mars model loaded. Location coordinates currently reuse the Moon coordinate orientation and will be calibrated for Mars later.</p>' : ''}
     </div>
     <div class="moon-stage">
-      <div class="moon-loading">Preparing lunar exploration...</div>
+      <div class="moon-loading">Preparing ${isMars ? 'Mars' : 'lunar'} exploration...</div>
     </div>
     <div class="moon-hint">DRAG TO ROTATE <span>·</span> SCROLL TO ZOOM</div>
   `;
@@ -33,10 +37,11 @@ export function createMoonExplorerPage({ stories, navigate }) {
   let resizeObserver = null;
 
   async function mount() {
-    sceneParts = createScene(stage);
-    storyPanel = createStoryPanel(stage, navigate);
+    sceneParts = createScene(stage, planetName);
+    storyPanel = createStoryPanel(stage, navigate, planet);
 
     const { scene, camera, renderer, controls } = sceneParts;
+    const loadPlanet = isMars ? loadMars : loadMoon;
 
     renderer.domElement.addEventListener('pointerdown', onPointerDown);
     renderer.domElement.addEventListener('pointerup', onPointerUp);
@@ -46,8 +51,10 @@ export function createMoonExplorerPage({ stories, navigate }) {
     resizeObserver.observe(stage);
 
     try {
-      const result = await loadMoon(scene, (percent) => {
-        if (!disposed) loading.textContent = `Loading Moon... ${percent}%`;
+      // Mars uses its own GLB loader, while reusing the Moon's current
+      // rendering, surface painting, and coordinate conversion logic for now.
+      const result = await loadPlanet(scene, (percent) => {
+        if (!disposed) loading.textContent = `Loading ${planetName} preview... ${percent}%`;
       });
 
       if (disposed) {
@@ -75,9 +82,12 @@ export function createMoonExplorerPage({ stories, navigate }) {
 
       loading.remove();
     } catch (error) {
-      console.error('Unable to load the Moon:', error);
+      console.error(`Unable to load ${planetName}:`, error);
       if (!disposed) {
-        loading.textContent = 'The Moon could not be loaded. Check that public/models/moon_topo_small.glb exists.';
+        const modelPath = isMars
+          ? 'public/models/mars.glb'
+          : 'public/models/moon_topo_small.glb';
+        loading.textContent = `The ${planetName} preview could not be loaded. Check that ${modelPath} exists.`;
         loading.classList.add('has-error');
       }
     }

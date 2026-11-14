@@ -17,11 +17,11 @@ export function createStoryIndexPage({ stories, planet }) {
   const title = isMoon ? 'Stories of the Moon' : 'Stories of Mars';
   const intro = isMoon
     ? 'Explore the missions, equipment and traces left across the lunar surface.'
-    : 'Mars stories will be added in a future chapter of the project.';
+    : 'Explore the missions, rovers, experiments and traces left across the Martian surface.';
 
   const cards = stories.map((story) => {
     const content = `
-      <span class="story-card-kicker">${escapeHtml(story.location || 'Lunar location')}</span>
+      <span class="story-card-kicker">${escapeHtml(story.location || (isMoon ? 'Lunar location' : 'Martian location'))}</span>
       <h2>${escapeHtml(story.name)}</h2>
       <p>${escapeHtml(story.description || 'A documented location in the mission archive.')}</p>
       <span class="story-card-action">${story.url ? 'Read the story →' : 'Story details not available'}</span>
@@ -34,7 +34,7 @@ export function createStoryIndexPage({ stories, planet }) {
 
   element.innerHTML = `
     <header class="page-heading">
-      <p class="eyebrow">${isMoon ? 'LUNAR ARCHIVE' : 'FUTURE ARCHIVE'}</p>
+      <p class="eyebrow">${isMoon ? 'LUNAR ARCHIVE' : 'MARTIAN ARCHIVE'}</p>
       <h1>${title}</h1>
       <p class="page-intro">${intro}</p>
     </header>

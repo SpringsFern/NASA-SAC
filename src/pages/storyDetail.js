@@ -20,13 +20,15 @@ export function createStoryDetailPage(story) {
         <p class="eyebrow">ARCHIVE ENTRY NOT FOUND</p>
         <h1>This story isn't here.</h1>
         <p>The address may be incorrect, or this entry may not have an article yet.</p>
-        <a class="text-link" href="${withBase('/story/moon')}" data-link>← Browse Moon stories</a>
+        <a class="text-link" href="${withBase('/story/moon')}" data-link>← Browse ${story?.planet === 'mars' ? 'Mars' : 'Moon'} stories</a>
       </div>
     `;
     return { element };
   }
 
-  const planetLabel = story.planet === 'moon' ? 'MOON STORY' : 'MARS STORY';
+  const isMoon = story.planet === 'moon';
+  const planetLabel = isMoon ? 'MOON STORY' : 'MARS STORY';
+  const planetStoriesLabel = isMoon ? 'Moon Stories' : 'Mars Stories';
   const coordinates = Number.isFinite(story.latitude) && Number.isFinite(story.longitude)
     ? `${story.latitude}°, ${story.longitude}°`
     : '';
@@ -34,7 +36,7 @@ export function createStoryDetailPage(story) {
   element.innerHTML = `
     <article class="story-article">
       <nav class="breadcrumbs" aria-label="Breadcrumb">
-        <a href="${withBase('/story/moon')}" data-link>Moon Stories</a>
+        <a href="${withBase(`/story/${story.planet}`)}" data-link>${planetStoriesLabel}</a>
         <span>/</span>
         <span>${escapeHtml(story.name)}</span>
       </nav>

@@ -3,8 +3,8 @@ import { withBase } from '../router/router.js';
 const NAV_ITEMS = [
   { label: 'Moon', href: withBase('/'), icon: '◐', group: 'explore' },
   { label: 'Moon Stories', href: withBase('/story/moon'), icon: '▤', group: 'explore' },
-  { label: 'Mars', href: '#', icon: '◉', group: 'later', disabled: true },
-  { label: 'Mars Stories', href: '#', icon: '▤', group: 'later', disabled: true }
+  { label: 'Mars', href: withBase('/mars'), icon: '◉', group: 'explore' },
+  { label: 'Mars Stories', href: withBase('/story/mars'), icon: '▤', group: 'explore' }
 ];
 
 export function createSidebar(root) {
@@ -22,12 +22,10 @@ export function createSidebar(root) {
       <nav class="sidebar-nav" aria-label="Main navigation">
         <p class="nav-section-label">EXPLORE</p>
         <div class="nav-group" data-group="explore"></div>
-        <p class="nav-section-label later-label">COMING LATER</p>
-        <div class="nav-group" data-group="later"></div>
       </nav>
       <div class="sidebar-footer">
         <span class="footer-dot"></span>
-        <span class="footer-label">LUNAR ARCHIVE</span>
+        <span class="footer-label">MISSION ARCHIVE</span>
       </div>
     </div>
   `;
@@ -41,6 +39,7 @@ export function createSidebar(root) {
 
     link.className = `nav-link${item.disabled ? ' is-disabled' : ''}`;
     link.href = item.href;
+    link.dataset.route = item.href.startsWith('#') ? '#' : new URL(item.href, window.location.origin).pathname;
     link.innerHTML = `
       <span class="nav-icon" aria-hidden="true">${item.icon}</span>
       <span class="nav-label">${item.label}</span>
@@ -72,8 +71,13 @@ export function createSidebar(root) {
 
   function setActivePath(path) {
     root.querySelectorAll('.nav-link[data-link]').forEach((link) => {
-      const active = link.getAttribute('href') === path ||
-        (link.getAttribute('href') === '/story/moon' && path.startsWith('/story/moon/'));
+      const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+      const route = link.dataset.route.startsWith(basePath)
+        ? link.dataset.route.slice(basePath.length) || '/'
+        : link.dataset.route;
+      const active = route === path ||
+        (route === '/story/moon' && path.startsWith('/story/moon/')) ||
+        (route === '/story/mars' && path.startsWith('/story/mars/'));
       link.classList.toggle('is-active', active);
       if (active) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');

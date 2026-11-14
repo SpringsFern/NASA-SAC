@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-export function createScene(container) {
+export function createScene(container, planetName = 'Moon') {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x080d18);
 
@@ -16,7 +16,7 @@ export function createScene(container) {
   renderer.setSize(width, height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.domElement.setAttribute('aria-label', 'Interactive 3D Moon');
+  renderer.domElement.setAttribute('aria-label', `Interactive 3D ${planetName}`);
   container.appendChild(renderer.domElement);
 
   scene.add(new THREE.AmbientLight(0xffffff, 1.5));
