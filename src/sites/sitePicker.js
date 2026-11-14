@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 
 // Match the normal painted-region radius in siteTexture.js.
-const SELECTION_RADIUS_DEG = 2;
+const SELECTION_RADIUS_DEG = 1.7;
 
 export function createSitePicker(
     canvas,

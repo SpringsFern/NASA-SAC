@@ -14,7 +14,7 @@ export function createScene(container) {
     0.1,
     100
   );
-  camera.position.set(0, 0, 4);
+  camera.position.set(4, 0, 0);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(width, height);
@@ -34,11 +34,12 @@ export function createScene(container) {
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-  controls.minDistance = 1.8;
-  controls.maxDistance = 8;
+  controls.dampingFactor = 0.08;
+  controls.rotateSpeed = 0.2;
   controls.autoRotate = true;
-  controls.autoRotateSpeed = 0.5;
+  controls.autoRotateSpeed = 0.3;
+  controls.minDistance = 1.2;
+  controls.maxDistance = 8;
 
   return { scene, camera, renderer, controls };
 }

@@ -2,6 +2,9 @@ import * as THREE from 'three';
 
 const WIDTH = 2048;
 const HEIGHT = 1024;
+const SELECTED_SITE_RADIUS= 2.5;
+const SITE_RADIUS= 1.7;
+
 
 function makeCanvasTexture(canvas) {
   const texture = new THREE.CanvasTexture(canvas);
@@ -26,7 +29,7 @@ function colorToRgba(color, alpha) {
 function drawSite(context, site, uv, selected) {
   if (!uv) return;
 
-  const radiusDegrees = selected ? 3.5 : 2;
+  const radiusDegrees = selected ? SELECTED_SITE_RADIUS : SITE_RADIUS;
   const latitude = THREE.MathUtils.degToRad(site.latitude);
   const cosLatitude = Math.max(Math.abs(Math.cos(latitude)), 0.15);
 

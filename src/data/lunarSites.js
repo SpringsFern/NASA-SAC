@@ -1,5 +1,17 @@
 export const lunarSites = [
   {
+    id: 'lunarOrigin',
+    name: 'Lunar Origin',
+    location: 'Sinus Medii (Mean Sub-Earth Point)',
+    latitude: 0.0,
+    longitude: 0.0,
+    description:
+      'The intersection of the lunar Equator and Prime Meridian, located near the center of the Moon’s Earth-facing side in Sinus Medii.',
+    fact:
+      'Unlike Earth’s Prime Meridian, which is anchored to a physical observatory, the Moon’s 0°, 0° point is defined by the mean direction pointing directly toward Earth.',
+    color: 0xff0000
+  },
+  {
     id: 'apollo11',
     name: 'Apollo 11',
     location: 'Mare Tranquillitatis',
