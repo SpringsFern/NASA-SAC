@@ -1,115 +1,107 @@
 
-import './style.css';
+import './styles/base.css';
+import './styles/moon.css';
+import './styles/storyPanel.css';
 
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { createScene } from './scene/scene.js';
+import { loadMoon } from './moon/moon.js';
 
-// Scene
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x050711);
+import {
+  createMarkers,
+  getClickedMarker
+} from './moon/markers.js';
 
-// Camera
-const camera = new THREE.PerspectiveCamera(
-  45,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
-camera.position.set(0, 0, 4);
+import { lunarSites } from './data/lunarSites.js';
+import { createStoryPanel } from './ui/storyPanel.js';
 
-// Renderer
-const renderer = new THREE.WebGLRenderer({
-  antialias: true
-});
-
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-
-document.querySelector('#app').appendChild(renderer.domElement);
-
-// Lighting
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
-scene.add(ambientLight);
-
-const sunLight = new THREE.DirectionalLight(0xffffff, 2.5);
-sunLight.position.set(5, 3, 5);
-scene.add(sunLight);
-
-// Soft fill light
-const fillLight = new THREE.DirectionalLight(0x899bc9, 0.6);
-fillLight.position.set(-5, 0, -5);
-scene.add(fillLight);
-
-// Camera controls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 0.5;
-controls.dampingFactor = 0.05;
-controls.minDistance = 1.8;
-controls.maxDistance = 8;
-
-// Load NASA Moon model
-const loader = new GLTFLoader();
-
+// Main container
+const container = document.querySelector('#app');
 const loading = document.querySelector('#loading');
 
-loader.load(
-  '/models/moon_topo_small.glb',
+// Create Three.js scene
+const {
+  scene,
+  camera,
+  renderer,
+  controls
+} = createScene(container);
 
-  (gltf) => {
-    const moon = gltf.scene;
+// Create story panel
+const storyPanel = createStoryPanel(container);
 
-    // Centre the model and fit it to our scene
-    const box = new THREE.Box3().setFromObject(moon);
-    const centre = box.getCenter(new THREE.Vector3());
+// Load Moon
+let markers = [];
 
-    moon.position.sub(centre);
+loadMoon(scene, (percent) => {
+  loading.textContent = `Loading Moon... ${percent}%`;
+})
+.then(({ moon, radius }) => {
 
-    const size = box.getSize(new THREE.Vector3());
-    const maxDimension = Math.max(size.x, size.y, size.z);
+  // Create lunar markers
+  markers = createMarkers(moon, lunarSites, radius);
 
-    moon.scale.setScalar(2 / maxDimension);
+  loading.textContent =
+    'Select a glowing marker to discover a lunar story';
 
-    scene.add(moon);
+  loading.classList.add('loaded');
 
-    loading.textContent = 'Drag to explore the Moon • Scroll to zoom';
-    loading.classList.add('loaded');
+})
+.catch((error) => {
+  console.error(error);
+  loading.textContent = 'Unable to load Moon model.';
+});
 
-    window.moon = moon;
-  },
+// Detect clicks
+let pointerStart = null;
 
-  (progress) => {
-    if (progress.total > 0) {
-      const percent = Math.round(
-        (progress.loaded / progress.total) * 100
-      );
-      loading.textContent = `Loading Moon... ${percent}%`;
-    }
-  },
+renderer.domElement.addEventListener('pointerdown', (event) => {
+  pointerStart = {
+    x: event.clientX,
+    y: event.clientY
+  };
 
-  (error) => {
-    console.error('Moon loading error:', error);
-    loading.textContent = 'Could not load Moon. Check the console.';
+  controls.autoRotate = false;
+});
+
+renderer.domElement.addEventListener('pointerup', (event) => {
+  if (!pointerStart) return;
+
+  const movement = Math.hypot(
+    event.clientX - pointerStart.x,
+    event.clientY - pointerStart.y
+  );
+
+  pointerStart = null;
+
+  // Ignore drag movements
+  if (movement > 5) return;
+
+  const site = getClickedMarker(
+    event,
+    renderer.domElement,
+    camera,
+    markers
+  );
+
+  if (site) {
+    storyPanel.show(site);
   }
-);
+});
 
-// Handle window resizing
+// Resize
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+  );
 });
 
 // Animation
 function animate() {
   requestAnimationFrame(animate);
-
-  if (window.moon && !controls.enabled) {
-  }
 
   controls.update();
   renderer.render(scene, camera);
