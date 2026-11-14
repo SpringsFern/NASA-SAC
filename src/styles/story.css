@@ -278,3 +278,17 @@ a.story-card:hover {
     margin-bottom: 32px;
   }
 }
+
+.markdown-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 24px auto;
+  border-radius: 12px;
+  border: 1px solid rgba(147, 174, 212, .15);
+}
+
+.markdown-content p img {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}

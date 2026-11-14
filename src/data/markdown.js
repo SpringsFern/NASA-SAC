@@ -7,14 +7,30 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
+
 function renderInline(text) {
   let html = escapeHtml(text);
 
+  // Inline code
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  // Images: ![description](image-url)
+  html = html.replace(
+    /!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g,
+    '<img src="$2" alt="$1" loading="lazy" decoding="async">'
+  );
+
+  // Links: [text](url)
+  html = html.replace(
+    /\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+  );
+
+  // Bold
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  // Italic
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-  html = html.replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
   return html;
 }
