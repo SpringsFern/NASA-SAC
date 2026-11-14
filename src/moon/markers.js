@@ -1,11 +1,12 @@
 
 import * as THREE from 'three';
+import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
 
-// Convert geographical coordinates to 3D position
+// Convert latitude/longitude into a 3D direction
 export function latLonToVector3(
   latitude,
   longitude,
-  radius = 1.015
+  radius = 1
 ) {
   const lat = THREE.MathUtils.degToRad(latitude);
   const lon = THREE.MathUtils.degToRad(longitude);
@@ -17,48 +18,131 @@ export function latLonToVector3(
   );
 }
 
-// Create markers on the Moon
-export function createMarkers(moonFrame, sites, radius = 1) {
-  const markerGroup = new THREE.Group();
+// Create a soft circular highlight texture
+function createHighlightTexture() {
+  const canvas = document.createElement('canvas');
 
-  // Attach markers to geographic reference frame
-  moonFrame.add(markerGroup);
+  canvas.width = 128;
+  canvas.height = 128;
 
+  const ctx = canvas.getContext('2d');
+
+  const gradient = ctx.createRadialGradient(
+    64, 64, 0,
+    64, 64, 64
+  );
+
+  gradient.addColorStop(0, 'rgba(255,255,255,0.75)');
+  gradient.addColorStop(0.45, 'rgba(255,255,255,0.45)');
+  gradient.addColorStop(0.75, 'rgba(255,255,255,0.15)');
+  gradient.addColorStop(1, 'rgba(255,255,255,0)');
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 128, 128);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+
+  return texture;
+}
+
+// Create surface highlights
+export function createMarkers(
+  moonFrame,
+  moon,
+  sites,
+  radius = 1
+) {
   const markers = [];
 
+  const raycaster = new THREE.Raycaster();
+
+  const highlightTexture = createHighlightTexture();
+
+  moonFrame.updateMatrixWorld(true);
+  moon.updateMatrixWorld(true);
+
   sites.forEach((site) => {
-    const geometry = new THREE.SphereGeometry(
-      0.025,
-      24,
-      24
+
+    // Calculate geographical direction
+    const direction = latLonToVector3(
+      site.latitude,
+      site.longitude
+    ).normalize();
+
+    // Find the actual lunar surface position
+    raycaster.set(
+      new THREE.Vector3(0, 0, 0),
+      direction
     );
 
-    const material = new THREE.MeshBasicMaterial({
+    const hits = raycaster.intersectObject(moon, true);
+
+    if (hits.length === 0) {
+      console.warn('Could not locate lunar site:', site.name);
+      return;
+    }
+
+    const hit = hits[0];
+
+    // Calculate the surface normal
+    const normalMatrix = new THREE.Matrix3()
+      .getNormalMatrix(hit.object.matrixWorld);
+
+    const normal = hit.face.normal
+      .clone()
+      .applyMatrix3(normalMatrix)
+      .normalize();
+
+    // Orient the decal to the surface
+    const quaternion = new THREE.Quaternion()
+      .setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1),
+        normal
+      );
+
+    const orientation = new THREE.Euler()
+      .setFromQuaternion(quaternion);
+
+    // Project the coloured highlight onto the surface
+    const decalGeometry = new DecalGeometry(
+      hit.object,
+      hit.point,
+      orientation,
+      new THREE.Vector3(0.12, 0.12, 0.04)
+    );
+
+    const decalMaterial = new THREE.MeshBasicMaterial({
+      map: highlightTexture,
       color: site.color,
+      transparent: true,
       depthTest: true,
-      depthWrite: false
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -4,
+      side: THREE.DoubleSide
     });
 
-    const marker = new THREE.Mesh(geometry, material);
-
-    // Position using correct lunar coordinates
-    marker.position.copy(
-      latLonToVector3(
-        site.latitude,
-        site.longitude,
-        radius * 1.015
-      )
+    const decal = new THREE.Mesh(
+      decalGeometry,
+      decalMaterial
     );
 
-    marker.userData.site = site;
+    decal.userData.site = site;
 
-    markerGroup.add(marker);
-    markers.push(marker);
+    // Decal geometry is generated in world coordinates.
+    // Our geographic frame currently has an identity transform.
+    moonFrame.add(decal);
+
+    markers.push(decal);
+
+    console.log('Surface highlight created:', site.name);
   });
 
   return markers;
 }
 
+// Detect clicked highlight
 export function getClickedMarker(
   event,
   canvas,

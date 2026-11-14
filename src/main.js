@@ -35,11 +35,12 @@ let markers = [];
 loadMoon(scene, (percent) => {
   loading.textContent = `Loading Moon... ${percent}%`;
 })
-.then(({ moonFrame, radius }) => {
+.then(({ moon, moonFrame, radius }) => {
 
   // Create geographically aligned markers
   markers = createMarkers(
     moonFrame,
+    moon,
     lunarSites,
     radius
   );
