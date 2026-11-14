@@ -1,4 +1,3 @@
-
 export const lunarSites = [
   {
     id: 'apollo11',
