@@ -3,7 +3,7 @@ id: pathfinderSojourner
 name: Sagan Memorial Station and Sojourner
 location: Ares Vallis, Chryse Planitia region (Mars)
 latitude: 19.33
-longitude: 326.45
+longitude: -33.55
 description: The 1997 Mars Pathfinder landing site. The lander (renamed the Carl Sagan Memorial Station) and the tiny Sojourner rover are both still here.
 fact: Sojourner, the first Mars rover, drove just over 100 meters total and never went more than about 12 m from the lander.
 color: 0x70a1ff

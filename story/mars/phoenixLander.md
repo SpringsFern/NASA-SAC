@@ -3,7 +3,7 @@ id: phoenixLander
 name: Phoenix, Frozen in the Arctic
 location: Green Valley, Vastitas Borealis (Mars)
 latitude: 68.2188
-longitude: 234.2485
+longitude: -125.7515
 description: The Phoenix lander's site in the Martian arctic. It confirmed water ice and then froze to death during the polar winter.
 fact: An orbiter photo later showed that winter ice had broken one of Phoenix's solar panels clean off.
 color: 0x00cec9

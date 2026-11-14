@@ -3,7 +3,7 @@ id: viking1Mutch
 name: Viking 1, the Mutch Memorial Station
 location: Chryse Planitia (Mars)
 latitude: 22.27
-longitude: 312.05
+longitude: -47.95
 description: The first successful U.S. Mars landing (1976). The Viking 1 lander sits here, renamed the Thomas Mutch Memorial Station.
 fact: Viking 1 ran for about 6 years until a faulty command in 1982 accidentally wiped its antenna pointing data.
 color: 0xe17055

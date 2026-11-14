@@ -3,7 +3,7 @@ id: opportunityOppy
 name: Oppy's Last Parking Spot
 location: Perseverance Valley, Endeavour Crater rim (Mars)
 latitude: -2.335
-longitude: 354.652
+longitude: -5.348
 description: Approximate location of Opportunity in Perseverance Valley, where a global dust storm ended its mission in 2018. Coordinates are near the HiRISE image center, not exact.
 fact: Opportunity drove 45.16 km, a full marathon, on a mission that was only supposed to last 90 days.
 color: 0xff7f50
