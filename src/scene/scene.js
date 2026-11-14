@@ -3,23 +3,20 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export function createScene(container) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x050711);
+  scene.background = new THREE.Color(0x080d18);
 
   const width = container.clientWidth || window.innerWidth;
   const height = container.clientHeight || window.innerHeight;
 
-  const camera = new THREE.PerspectiveCamera(
-    45,
-    width / height,
-    0.1,
-    100
-  );
+  const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
   camera.position.set(4, 0, 0);
+  camera.lookAt(0, 0, 0);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(width, height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.domElement.setAttribute('aria-label', 'Interactive 3D Moon');
   container.appendChild(renderer.domElement);
 
   scene.add(new THREE.AmbientLight(0xffffff, 1.5));

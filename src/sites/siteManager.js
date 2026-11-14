@@ -7,7 +7,7 @@ function directionFromCoordinates(latitude, longitude) {
   const lat = THREE.MathUtils.degToRad(latitude);
   const lon = THREE.MathUtils.degToRad(longitude);
 
-  // Coordinate orientation verified against the project's Moon model.
+  // This orientation was verified against the project's NASA Moon model.
   return new THREE.Vector3(
     Math.cos(lat) * Math.cos(lon),
     Math.sin(lat),
@@ -20,11 +20,7 @@ function cellCoordinate(value) {
 }
 
 function cellKey(direction) {
-  return [
-    cellCoordinate(direction.x),
-    cellCoordinate(direction.y),
-    cellCoordinate(direction.z)
-  ].join(':');
+  return `${cellCoordinate(direction.x)}:${cellCoordinate(direction.y)}:${cellCoordinate(direction.z)}`;
 }
 
 export function createSiteManager(moon, moonFrame, initialSites = []) {
@@ -38,24 +34,18 @@ export function createSiteManager(moon, moonFrame, initialSites = []) {
   let selectedSiteId = null;
 
   function findSiteUV(site) {
-    const direction = directionFromCoordinates(
-      site.latitude,
-      site.longitude
-    );
+    const direction = directionFromCoordinates(site.latitude, site.longitude);
 
     moonFrame.updateMatrixWorld(true);
     moon.updateMatrixWorld(true);
 
     const center = moonFrame.localToWorld(new THREE.Vector3(0, 0, 0));
-    const worldDirection = direction.clone().transformDirection(
-      moonFrame.matrixWorld
-    );
-
+    const worldDirection = direction.clone().transformDirection(moonFrame.matrixWorld);
     const origin = center.clone().addScaledVector(worldDirection, 3);
+
     raycaster.set(origin, worldDirection.clone().negate());
 
     const hit = raycaster.intersectObject(moon, true)[0];
-
     if (!hit?.uv) {
       console.warn(`Could not map site to Moon UV coordinates: ${site.id}`);
       return null;
@@ -84,11 +74,10 @@ export function createSiteManager(moon, moonFrame, initialSites = []) {
     directions.delete(siteId);
   }
 
-  function addSite(site, { deferTextureUpdate = false } = {}) {
+  function validateSite(site) {
     if (!site?.id || typeof site.id !== 'string') {
       throw new Error('Every lunar site must have a string ID.');
     }
-    if (sites.has(site.id)) return false;
 
     if (
       !Number.isFinite(site.latitude) ||
@@ -101,24 +90,23 @@ export function createSiteManager(moon, moonFrame, initialSites = []) {
     ) {
       throw new Error(`Invalid coordinates or color for site: ${site.id}`);
     }
+  }
+
+  function addSite(site, { deferTextureUpdate = false } = {}) {
+    validateSite(site);
+    if (sites.has(site.id)) return false;
 
     const uv = findSiteUV(site);
     if (!uv) return false;
 
     const storedSite = { ...site };
-    const direction = directionFromCoordinates(
-      storedSite.latitude,
-      storedSite.longitude
-    );
+    const direction = directionFromCoordinates(site.latitude, site.longitude);
 
     sites.set(storedSite.id, storedSite);
     uvPositions.set(storedSite.id, uv);
     addToSpatialIndex(storedSite, direction);
 
-    if (!deferTextureUpdate) {
-      painting.addBaseSite(storedSite, uv);
-    }
-
+    if (!deferTextureUpdate) painting.addBaseSite(storedSite, uv);
     return true;
   }
 
@@ -129,10 +117,7 @@ export function createSiteManager(moon, moonFrame, initialSites = []) {
       if (addSite(site, { deferTextureUpdate: true })) added++;
     }
 
-    if (added > 0) {
-      painting.rebuildBase(sites.values(), uvPositions);
-    }
-
+    if (added) painting.rebuildBase(sites.values(), uvPositions);
     return added;
   }
 
@@ -157,18 +142,7 @@ export function createSiteManager(moon, moonFrame, initialSites = []) {
     if (!existing) return false;
 
     const updated = { ...existing, ...changes, id: siteId };
-
-    if (
-      !Number.isFinite(updated.latitude) ||
-      !Number.isFinite(updated.longitude) ||
-      !Number.isFinite(updated.color) ||
-      updated.latitude < -90 ||
-      updated.latitude > 90 ||
-      updated.longitude < -180 ||
-      updated.longitude > 180
-    ) {
-      throw new Error(`Invalid updated site data: ${siteId}`);
-    }
+    validateSite(updated);
 
     const coordinatesChanged =
       updated.latitude !== existing.latitude ||
@@ -179,9 +153,7 @@ export function createSiteManager(moon, moonFrame, initialSites = []) {
     if (coordinatesChanged) {
       uv = findSiteUV(updated);
       if (!uv) return false;
-    }
 
-    if (coordinatesChanged) {
       removeFromSpatialIndex(siteId);
       addToSpatialIndex(
         updated,
@@ -193,10 +165,7 @@ export function createSiteManager(moon, moonFrame, initialSites = []) {
     sites.set(siteId, updated);
     painting.rebuildBase(sites.values(), uvPositions);
 
-    if (selectedSiteId === siteId) {
-      painting.setSelectedSite(updated, uv);
-    }
-
+    if (selectedSiteId === siteId) painting.setSelectedSite(updated, uv);
     return true;
   }
 
@@ -204,15 +173,14 @@ export function createSiteManager(moon, moonFrame, initialSites = []) {
     if (siteId !== null && !sites.has(siteId)) return false;
 
     selectedSiteId = siteId;
-
     const site = siteId ? sites.get(siteId) : null;
     const uv = siteId ? uvPositions.get(siteId) : null;
     painting.setSelectedSite(site, uv);
-
     return true;
   }
 
-  function findNearestSite(direction, maxAngleDegrees = 8) {
+  // Search only nearby spatial cells rather than comparing every stored site.
+  function findNearestSite(direction, maxAngleDegrees = 1.7) {
     const maxAngle = THREE.MathUtils.degToRad(maxAngleDegrees);
     const maxChord = 2 * Math.sin(maxAngle / 2);
     const range = Math.ceil(maxChord / SPATIAL_CELL_SIZE);
@@ -226,14 +194,11 @@ export function createSiteManager(moon, moonFrame, initialSites = []) {
     for (let x = -range; x <= range; x++) {
       for (let y = -range; y <= range; y++) {
         for (let z = -range; z <= range; z++) {
-          const key = `${cx + x}:${cy + y}:${cz + z}`;
-          const cell = spatialCells.get(key);
+          const cell = spatialCells.get(`${cx + x}:${cy + y}:${cz + z}`);
           if (!cell) continue;
 
           for (const siteId of cell) {
-            const siteDirection = directions.get(siteId);
-            const dot = direction.dot(siteDirection);
-
+            const dot = direction.dot(directions.get(siteId));
             if (dot >= closestDot) {
               closestDot = dot;
               closest = sites.get(siteId);

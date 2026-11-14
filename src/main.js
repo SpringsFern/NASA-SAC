@@ -1,115 +1,78 @@
 import './styles/base.css';
+import './styles/sidebar.css';
 import './styles/moon.css';
-import './styles/storyPanel.css';
+import './styles/story.css';
 
-import { createScene } from './scene/scene.js';
-import { loadMoon } from './moon/moon.js';
-import { applySurfacePainting } from './moon/surfacePainting.js';
-import { createSiteManager } from './sites/siteManager.js';
-import { createSitePicker } from './sites/sitePicker.js';
-import { lunarSites } from './data/lunarSites.js';
-import { createStoryPanel } from './ui/storyPanel.js';
+import { loadStories } from './data/stories.js';
+import { createRouter } from './router/router.js';
+import { createSidebar } from './ui/sidebar.js';
+import { createMoonExplorerPage } from './pages/moonExplorer.js';
+import { createStoryIndexPage } from './pages/storyIndex.js';
+import { createStoryDetailPage } from './pages/storyDetail.js';
 
-const container = document.querySelector('#app');
-const loading = document.querySelector('#loading');
+const app = document.querySelector('#app');
 
-if (!container || !loading) {
-  throw new Error('The application container or loading element is missing.');
+if (!app) {
+  throw new Error('Application root #app was not found.');
 }
 
-const { scene, camera, renderer, controls } = createScene(container);
-const storyPanel = createStoryPanel(container);
+const stories = loadStories();
 
-let moon = null;
-let moonFrame = null;
-let siteManager = null;
-let surfacePainting = null;
-let sitePicker = null;
-let pointerStart = null;
+app.innerHTML = `
+  <div class="app-shell">
+    <aside id="app-sidebar"></aside>
+    <main id="page-content" tabindex="-1"></main>
+  </div>
+`;
 
-async function start() {
-  try {
-    const result = await loadMoon(scene, (percent) => {
-      loading.textContent = `Loading Moon... ${percent}%`;
-    });
+const sidebarRoot = app.querySelector('#app-sidebar');
+const pageRoot = app.querySelector('#page-content');
+const sidebar = createSidebar(sidebarRoot);
 
-    moon = result.moon;
-    moonFrame = result.moonFrame;
+let activePage = null;
 
-    siteManager = createSiteManager(moon, moonFrame, lunarSites);
-    surfacePainting = applySurfacePainting(
-      moon,
-      siteManager.baseTexture,
-      siteManager.selectedTexture
-    );
-
-    sitePicker = createSitePicker(
-      renderer.domElement,
-      camera,
-      moon,
-      moonFrame,
-      siteManager
-    );
-
-    loading.textContent =
-      'Select a highlighted location to discover its story';
-    loading.classList.add('loaded');
-  } catch (error) {
-    console.error('Unable to start Beyond the Mission:', error);
-    loading.textContent = 'Unable to load the Moon. Please refresh the page.';
+const router = createRouter((pathname) => {
+  if (activePage?.destroy) {
+    activePage.destroy();
   }
-}
 
-renderer.domElement.addEventListener('pointerdown', (event) => {
-  pointerStart = {
-    x: event.clientX,
-    y: event.clientY
-  };
+  activePage = null;
+  pageRoot.replaceChildren();
+  sidebar.setActivePath(pathname);
 
-  controls.autoRotate = false;
+  if (pathname === '/' || pathname === '/moon') {
+    activePage = createMoonExplorerPage({
+      stories: stories.filter((story) => story.planet === 'moon'),
+      navigate: router.navigate
+    });
+  } else if (pathname === '/story/moon') {
+    activePage = createStoryIndexPage({
+      stories: stories.filter((story) => story.planet === 'moon'),
+      planet: 'moon'
+    });
+  } else if (pathname === '/story/mars') {
+    activePage = createStoryIndexPage({
+      stories: stories.filter((story) => story.planet === 'mars'),
+      planet: 'mars'
+    });
+  } else if (pathname.startsWith('/story/')) {
+    const story = stories.find((item) => item.url === pathname);
+    activePage = story
+      ? createStoryDetailPage(story)
+      : createStoryDetailPage(null);
+  } else {
+    activePage = createStoryDetailPage(null);
+  }
+
+  pageRoot.appendChild(activePage.element);
+  activePage.mount?.();
+  pageRoot.focus({ preventScroll: true });
 });
 
-renderer.domElement.addEventListener('pointerup', (event) => {
-  if (!pointerStart || !sitePicker || !siteManager) return;
+router.start();
 
-  const movement = Math.hypot(
-    event.clientX - pointerStart.x,
-    event.clientY - pointerStart.y
-  );
-
-  pointerStart = null;
-
-  // Ignore drags; only treat a stationary pointer release as a click.
-  if (movement > 5) return;
-
-  const site = sitePicker.pick(event);
-
-  if (!site) return;
-
-  siteManager.setSelected(site.id);
-  storyPanel.show(site);
+window.addEventListener('beforeunload', () => {
+  activePage?.destroy?.();
+  router.destroy();
+  sidebar.destroy();
 });
-
-renderer.domElement.addEventListener('pointercancel', () => {
-  pointerStart = null;
-});
-
-function resize() {
-  const width = container.clientWidth;
-  const height = container.clientHeight;
-
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-  renderer.setSize(width, height);
-}
-
-window.addEventListener('resize', resize);
-
-function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
-}
-
-start();
-animate();

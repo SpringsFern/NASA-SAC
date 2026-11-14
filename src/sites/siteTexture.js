@@ -2,11 +2,17 @@ import * as THREE from 'three';
 
 const WIDTH = 2048;
 const HEIGHT = 1024;
-const SELECTED_SITE_RADIUS= 2.5;
-const SITE_RADIUS= 1.7;
+const SELECTED_SITE_RADIUS = 2.5;
+const SITE_RADIUS = 1.7;
 
+function createLayer() {
+  const canvas = document.createElement('canvas');
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
 
-function makeCanvasTexture(canvas) {
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('Could not create the lunar paint canvas.');
+
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.wrapS = THREE.ClampToEdgeWrapping;
@@ -15,7 +21,8 @@ function makeCanvasTexture(canvas) {
   texture.magFilter = THREE.LinearFilter;
   texture.generateMipmaps = true;
   texture.needsUpdate = true;
-  return texture;
+
+  return { canvas, context, texture };
 }
 
 function colorToRgba(color, alpha) {
@@ -41,12 +48,10 @@ function drawSite(context, site, uv, selected) {
 
   const centerX = uv.x * WIDTH;
   const centerY = (1 - uv.y) * HEIGHT;
-  const radius = Math.max(radiusX, radiusY);
-
   const centerAlpha = selected ? 0.72 : 0.34;
   const middleAlpha = selected ? 0.34 : 0.15;
 
-  // Draw copies at the horizontal edges so highlights cross the UV seam.
+  // Draw across the longitude seam as well as at the main UV position.
   for (const offset of [-WIDTH, 0, WIDTH]) {
     const x = centerX + offset;
 
@@ -67,24 +72,11 @@ function drawSite(context, site, uv, selected) {
   }
 }
 
-function createLayer() {
-  const canvas = document.createElement('canvas');
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT;
-  const context = canvas.getContext('2d');
-
-  if (!context) {
-    throw new Error('Could not create the lunar paint canvas.');
-  }
-
-  return { canvas, context, texture: makeCanvasTexture(canvas) };
-}
-
 export function createSiteTexture() {
   const base = createLayer();
   const selected = createLayer();
 
-  function clearLayer(layer) {
+  function clear(layer) {
     layer.context.clearRect(0, 0, WIDTH, HEIGHT);
   }
 
@@ -94,7 +86,7 @@ export function createSiteTexture() {
   }
 
   function rebuildBase(sites, uvPositions) {
-    clearLayer(base);
+    clear(base);
     for (const site of sites) {
       drawSite(base.context, site, uvPositions.get(site.id), false);
     }
@@ -102,10 +94,8 @@ export function createSiteTexture() {
   }
 
   function setSelectedSite(site, uv) {
-    clearLayer(selected);
-    if (site && uv) {
-      drawSite(selected.context, site, uv, true);
-    }
+    clear(selected);
+    if (site && uv) drawSite(selected.context, site, uv, true);
     selected.texture.needsUpdate = true;
   }
 

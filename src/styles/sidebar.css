@@ -1,0 +1,234 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 258px;
+  height: 100%;
+  padding: 22px 14px 16px;
+  background: #0c1422;
+  border-right: 1px solid rgba(160, 184, 220, .12);
+  transition: width .22s ease;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  gap: 8px;
+  padding: 0 5px 20px;
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+  color: #f1f5fc;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.brand-mark {
+  display: grid;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 10px;
+  background: #172d46;
+  color: #8bd7ff;
+  font-size: 20px;
+}
+
+.brand-name {
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .13em;
+}
+
+.sidebar-toggle {
+  display: grid;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgba(160, 184, 220, .15);
+  border-radius: 8px;
+  background: transparent;
+  color: #9eacc1;
+  cursor: pointer;
+}
+
+.toggle-glyph {
+  font-size: 23px;
+  line-height: 1;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.nav-section-label {
+  margin: 16px 10px 8px;
+  color: #6f8099;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .16em;
+  white-space: nowrap;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 43px;
+  gap: 12px;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: #aebbd0;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .16s ease, color .16s ease;
+}
+
+.nav-link:hover {
+  background: rgba(130, 165, 210, .08);
+  color: #f3f7ff;
+}
+
+.nav-link.is-active {
+  border-color: rgba(104, 190, 255, .16);
+  background: rgba(69, 148, 218, .14);
+  color: #a9e0ff;
+}
+
+.nav-icon {
+  display: grid;
+  flex: 0 0 22px;
+  width: 22px;
+  place-items: center;
+  color: #8fcff4;
+  font-size: 18px;
+}
+
+.nav-label {
+  overflow: hidden;
+  flex: 1;
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.soon-label {
+  color: #697991;
+  font-size: 8px;
+  letter-spacing: .08em;
+}
+
+.nav-link.is-disabled {
+  cursor: not-allowed;
+  opacity: .46;
+}
+
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: auto;
+  padding: 14px 10px 4px;
+  color: #6f8099;
+  font-size: 9px;
+  letter-spacing: .13em;
+}
+
+.footer-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #72c9a3;
+  box-shadow: 0 0 12px rgba(114, 201, 163, .5);
+}
+
+.sidebar.is-collapsed {
+  width: 72px;
+  padding-inline: 10px;
+}
+
+.sidebar.is-collapsed .sidebar-brand {
+  flex-direction: column;
+  padding-inline: 0;
+}
+
+.sidebar.is-collapsed .brand-name,
+.sidebar.is-collapsed .nav-label,
+.sidebar.is-collapsed .nav-section-label,
+.sidebar.is-collapsed .soon-label,
+.sidebar.is-collapsed .footer-label {
+  display: none;
+}
+
+.sidebar.is-collapsed .brand-link {
+  justify-content: center;
+}
+
+.sidebar.is-collapsed .sidebar-toggle {
+  width: 28px;
+  height: 26px;
+}
+
+.sidebar.is-collapsed .nav-link {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.sidebar.is-collapsed .nav-icon {
+  flex-basis: 100%;
+}
+
+.sidebar.is-collapsed .sidebar-footer {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+@media (max-width: 640px) {
+  .sidebar {
+    width: 72px;
+    padding-inline: 10px;
+  }
+
+  .sidebar .brand-name,
+  .sidebar .nav-label,
+  .sidebar .nav-section-label,
+  .sidebar .soon-label,
+  .sidebar .footer-label {
+    display: none;
+  }
+
+  .sidebar .sidebar-brand {
+    flex-direction: column;
+    padding-inline: 0;
+  }
+
+  .sidebar .nav-link {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .sidebar .nav-icon {
+    flex-basis: 100%;
+  }
+
+  .sidebar .sidebar-footer {
+    justify-content: center;
+    padding-inline: 0;
+  }
+}
