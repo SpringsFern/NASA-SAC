@@ -1,6 +1,7 @@
 import { createScene } from '../scene/scene.js';
 import { loadMoon } from '../moon/moon.js';
 import { loadMars } from '../mars/mars.js';
+import { marsCoordinatesToUV, marsDirectionFromCoordinates } from '../mars/marsCoordinates.js';
 import { applySurfacePainting } from '../moon/surfacePainting.js';
 import { createSiteManager } from '../sites/siteManager.js';
 import { createSitePicker } from '../sites/sitePicker.js';
@@ -16,10 +17,23 @@ export function createMoonExplorerPage({ stories, navigate, planet = 'moon' }) {
       <p class="eyebrow">${isMars ? 'INTERACTIVE MARS MAP' : 'INTERACTIVE LUNAR MAP'}</p>
       <h1>${planetName}</h1>
       <p>Rotate ${isMars ? 'Mars' : 'the Moon'} and select a highlighted location to explore its story.</p>
-      ${isMars ? '<p class="planet-preview-note">Mars model loaded. Location coordinates currently reuse the Moon coordinate orientation and will be calibrated for Mars later.</p>' : ''}
+      ${isMars ? '<p class="planet-preview-note">Surface: Viking Colorized Global Mosaic (925 m)' : ''}
     </div>
     <div class="moon-stage">
       <div class="moon-loading">Preparing ${isMars ? 'Mars' : 'lunar'} exploration...</div>
+    </div>
+    <div class="coordinate-readout">
+      <div class="coordinate-label">SURFACE COORDINATES</div>
+
+      <div class="coordinate-value">
+        <span>LAT</span>
+        <strong class="coordinate-latitude">--.------°</strong>
+      </div>
+
+      <div class="coordinate-value">
+        <span>LON</span>
+        <strong class="coordinate-longitude">--.------°</strong>
+      </div>
     </div>
     <div class="moon-hint">DRAG TO ROTATE <span>·</span> SCROLL TO ZOOM</div>
   `;
@@ -32,6 +46,7 @@ export function createMoonExplorerPage({ stories, navigate, planet = 'moon' }) {
   let surfacePainting = null;
   let sitePicker = null;
   let storyPanel = null;
+  let planetResources = null;
   let pointerStart = null;
   let disposed = false;
   let resizeObserver = null;
@@ -51,8 +66,8 @@ export function createMoonExplorerPage({ stories, navigate, planet = 'moon' }) {
     resizeObserver.observe(stage);
 
     try {
-      // Mars uses its own GLB loader, while reusing the Moon's current
-      // rendering, surface painting, and coordinate conversion logic for now.
+      // Mars uses a sphere textured from the Viking GeoTIFF conversion.
+      // Moon rendering and selection remain unchanged.
       const result = await loadPlanet(scene, (percent) => {
         if (!disposed) loading.textContent = `Loading ${planetName} preview... ${percent}%`;
       });
@@ -62,10 +77,18 @@ export function createMoonExplorerPage({ stories, navigate, planet = 'moon' }) {
         return;
       }
 
+      planetResources = result;
       const moon = result.moon;
       const moonFrame = result.moonFrame;
 
-      siteManager = createSiteManager(moon, moonFrame, stories);
+      const siteOptions = isMars
+        ? {
+            directionFromCoordinates: marsDirectionFromCoordinates,
+            getSiteUV: marsCoordinatesToUV
+          }
+        : undefined;
+
+      siteManager = createSiteManager(moon, moonFrame, stories, siteOptions);
       surfacePainting = applySurfacePainting(
         moon,
         siteManager.baseTexture,
@@ -79,15 +102,19 @@ export function createMoonExplorerPage({ stories, navigate, planet = 'moon' }) {
         moonFrame,
         siteManager
       );
+      renderer.domElement.addEventListener(
+        'pointermove',
+        onPointerMove
+      );
 
       loading.remove();
     } catch (error) {
       console.error(`Unable to load ${planetName}:`, error);
       if (!disposed) {
-        const modelPath = isMars
-          ? 'public/models/mars.glb'
+        const requiredAsset = isMars
+          ? 'public/textures/mars_color.jpg'
           : 'public/models/moon_topo_small.glb';
-        loading.textContent = `The ${planetName} preview could not be loaded. Check that ${modelPath} exists.`;
+        loading.textContent = `The ${planetName} preview could not be loaded. Check that ${requiredAsset} exists.`;
         loading.classList.add('has-error');
       }
     }
@@ -153,11 +180,13 @@ export function createMoonExplorerPage({ stories, navigate, planet = 'moon' }) {
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointerup', onPointerUp);
       canvas.removeEventListener('pointercancel', onPointerCancel);
+      canvas.removeEventListener('pointermove', onPointerMove);
     }
 
     storyPanel?.destroy();
     surfacePainting?.dispose();
     siteManager?.dispose();
+    planetResources?.dispose?.();
 
     if (sceneParts) {
       sceneParts.controls.dispose();
@@ -165,6 +194,29 @@ export function createMoonExplorerPage({ stories, navigate, planet = 'moon' }) {
       sceneParts.renderer.domElement.remove();
     }
   }
+
+  function onPointerMove(event) {
+  if (!sitePicker) return;
+
+  const coordinates = sitePicker.getCoordinates(event);
+
+  const readout = element.querySelector('.coordinate-readout');
+  const latitudeElement = element.querySelector('.coordinate-latitude');
+  const longitudeElement = element.querySelector('.coordinate-longitude');
+
+  if (!coordinates) {
+    readout.classList.remove('is-visible');
+    return;
+  }
+
+  latitudeElement.textContent =
+    `${coordinates.latitude.toFixed(6)}°`;
+
+  longitudeElement.textContent =
+    `${coordinates.longitude.toFixed(6)}°`;
+
+  readout.classList.add('is-visible');
+}
 
   return { element, mount, destroy };
 }

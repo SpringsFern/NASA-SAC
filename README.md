@@ -99,6 +99,10 @@ We are responsible for:
 - Selecting and verifying the historical information and mission details included in the project.
 - Testing, reviewing and integrating the technical implementation.
 
+## Datasets
+- [Mars Viking Global Color Mosaic 925m](https://astrogeology.usgs.gov/search/map/mars_viking_global_color_mosaic_925m)
+- [Moon Color Map and Height Map](https://svs.gsfc.nasa.gov/14959/)
+
 ## 🏆 Challenge Information
 
 **Event:** NASA International Space Apps Challenge 2026

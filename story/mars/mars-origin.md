@@ -6,5 +6,5 @@ latitude: 0.0
 longitude: 0.0
 description: The intersection of the lunar Equator and Prime Meridian, located near the center of the Moon’s Earth-facing side in Sinus Medii.
 fact: The Moon’s 0°, 0° point is a coordinate reference, not a mission landing site.
-color: 0x04D9FF
+color: 0xff0000
 -->

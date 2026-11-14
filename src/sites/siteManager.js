@@ -3,7 +3,7 @@ import { createSiteTexture } from './siteTexture.js';
 
 const SPATIAL_CELL_SIZE = 0.15;
 
-function directionFromCoordinates(latitude, longitude) {
+function defaultDirectionFromCoordinates(latitude, longitude) {
   const lat = THREE.MathUtils.degToRad(latitude);
   const lon = THREE.MathUtils.degToRad(longitude);
 
@@ -23,7 +23,15 @@ function cellKey(direction) {
   return `${cellCoordinate(direction.x)}:${cellCoordinate(direction.y)}:${cellCoordinate(direction.z)}`;
 }
 
-export function createSiteManager(moon, moonFrame, initialSites = []) {
+export function createSiteManager(
+  moon,
+  moonFrame,
+  initialSites = [],
+  {
+    directionFromCoordinates = defaultDirectionFromCoordinates,
+    getSiteUV = null
+  } = {}
+) {
   const sites = new Map();
   const uvPositions = new Map();
   const directions = new Map();
@@ -34,6 +42,11 @@ export function createSiteManager(moon, moonFrame, initialSites = []) {
   let selectedSiteId = null;
 
   function findSiteUV(site) {
+    if (getSiteUV) {
+      const uv = getSiteUV(site.latitude, site.longitude);
+      return new THREE.Vector2(uv.x, uv.y);
+    }
+
     const direction = directionFromCoordinates(site.latitude, site.longitude);
 
     moonFrame.updateMatrixWorld(true);
@@ -47,7 +60,7 @@ export function createSiteManager(moon, moonFrame, initialSites = []) {
 
     const hit = raycaster.intersectObject(moon, true)[0];
     if (!hit?.uv) {
-      console.warn(`Could not map site to Moon UV coordinates: ${site.id}`);
+      console.warn(`Could not map site to surface UV coordinates: ${site.id}`);
       return null;
     }
 
@@ -76,7 +89,7 @@ export function createSiteManager(moon, moonFrame, initialSites = []) {
 
   function validateSite(site) {
     if (!site?.id || typeof site.id !== 'string') {
-      throw new Error('Every lunar site must have a string ID.');
+      throw new Error('Every site must have a string ID.');
     }
 
     if (
