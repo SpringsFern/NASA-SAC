@@ -14,7 +14,7 @@ export function loadMoon(scene, onProgress) {
       (gltf) => {
         const moon = gltf.scene;
 
-        // Calculate bounding box
+        // Calculate original model bounds
         const box = new THREE.Box3().setFromObject(moon);
 
         const centre = box.getCenter(new THREE.Vector3());
@@ -26,15 +26,28 @@ export function loadMoon(scene, onProgress) {
           size.z
         );
 
-        // Centre and scale model
+        // Create geographic reference frame
+        const moonFrame = new THREE.Group();
+
+        // Centre and normalise Moon
         moon.position.sub(centre);
         moon.scale.setScalar(2 / maxDimension);
 
-        scene.add(moon);
+        // Attach Moon to geographic frame
+        moonFrame.add(moon);
+
+        // Add reference frame to scene
+        scene.add(moonFrame);
+
+        console.log('Moon loaded:', MOON_MODEL);
+        console.log('Original centre:', centre);
+        console.log('Original dimensions:', size);
+        console.log('Normalised radius:', 1);
 
         resolve({
           moon,
-          radius: maxDimension / 2
+          moonFrame,
+          radius: 1
         });
       },
 

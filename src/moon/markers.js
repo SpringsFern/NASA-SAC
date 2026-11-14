@@ -1,40 +1,53 @@
 
 import * as THREE from 'three';
 
-export function createMarkers(moon, sites, radius) {
+// Convert geographical coordinates to 3D position
+export function latLonToVector3(
+  latitude,
+  longitude,
+  radius = 1.015
+) {
+  const lat = THREE.MathUtils.degToRad(latitude);
+  const lon = THREE.MathUtils.degToRad(longitude);
+
+  return new THREE.Vector3(
+    radius * Math.cos(lat) * Math.cos(lon),
+    radius * Math.sin(lat),
+    -radius * Math.cos(lat) * Math.sin(lon)
+  );
+}
+
+// Create markers on the Moon
+export function createMarkers(moonFrame, sites, radius = 1) {
   const markerGroup = new THREE.Group();
-  moon.add(markerGroup);
+
+  // Attach markers to geographic reference frame
+  moonFrame.add(markerGroup);
 
   const markers = [];
 
   sites.forEach((site) => {
-    const lat = THREE.MathUtils.degToRad(site.latitude);
-    const lon = THREE.MathUtils.degToRad(site.longitude);
-
-    // Convert latitude and longitude to 3D coordinates.
-    // Longitude orientation will be calibrated against the GLB.
-    const position = new THREE.Vector3(
-      -Math.cos(lat) * Math.sin(lon),
-      Math.sin(lat),
-      Math.cos(lat) * Math.cos(lon)
-    );
-
     const geometry = new THREE.SphereGeometry(
-      radius * 0.025,
-      20,
-      20
+      0.025,
+      24,
+      24
     );
 
-    const material = new THREE.MeshStandardMaterial({
+    const material = new THREE.MeshBasicMaterial({
       color: site.color,
-      emissive: site.color,
-      emissiveIntensity: 2
+      depthTest: true,
+      depthWrite: false
     });
 
     const marker = new THREE.Mesh(geometry, material);
 
+    // Position using correct lunar coordinates
     marker.position.copy(
-      position.multiplyScalar(radius * 1.025)
+      latLonToVector3(
+        site.latitude,
+        site.longitude,
+        radius * 1.015
+      )
     );
 
     marker.userData.site = site;

@@ -35,10 +35,14 @@ let markers = [];
 loadMoon(scene, (percent) => {
   loading.textContent = `Loading Moon... ${percent}%`;
 })
-.then(({ moon, radius }) => {
+.then(({ moonFrame, radius }) => {
 
-  // Create lunar markers
-  markers = createMarkers(moon, lunarSites, radius);
+  // Create geographically aligned markers
+  markers = createMarkers(
+    moonFrame,
+    lunarSites,
+    radius
+  );
 
   loading.textContent =
     'Select a glowing marker to discover a lunar story';
