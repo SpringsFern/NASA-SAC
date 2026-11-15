@@ -1,124 +1,55 @@
 # 🌕 Beyond the Mission
 
-### The Stories Left Behind on the Moon
+### the stories left behind on the Moon
 
 **NASA Space Apps Challenge 2026**
 
-> Every mission leaves a mark. Every abandoned object has a story worth remembering.
+> every mission leaves something behind. we think that stuff still has stories to tell.
 
-[Live Demo (GitHub Pages)](https://springsfern.github.io/NASA-SAC/)
+[try it live (GitHub Pages)](https://springsfern.github.io/NASA-SAC/)
 
-## 🚀 About the Project
+## What is this?
 
-**Beyond the Mission** is an interactive 3D storytelling experience that explores the human-made objects and scientific equipment left behind on the Moon and, in future versions, Mars.
+Beyond the Mission is a small 3D website where you can move around the Moon, click on different spots, and read about the things humans left there. Old landers, moon buggies, science experiments, random tools, even a couple of golf balls. (Mars is coming later.)
 
-Space exploration is not just about rockets, astronauts and discoveries. It is also about the equipment, experiments and technology that remain on other worlds long after missions have ended.
+Most of the time when we talk about space, it's rockets, astronauts and big discoveries. But there's another side nobody really talks about: all the equipment that just stays on another world after the mission is over. It sits there for decades and gets forgotten.
 
-Our project aims to bring these forgotten pieces of space history back into the spotlight.
+We wanted to bring some of that back. So instead of reading a long article, you explore the Moon yourself and find the stories as you go. We mostly made this because we think space history is genuinely cool and wanted to make it fun to dig into.
 
-Users can explore a 3D representation of the Moon, select highlighted locations and discover the stories behind the equipment left there by lunar missions.
+## What you can do
 
-Instead of presenting information through ordinary articles or lists, we want to make learning about space history an engaging and interactive experience.
+- Spin and zoom around a 3D Moon
+- Click marked spots to find old mission sites
+- Read the story of each object: what it is, which mission left it, why it's still there, and what it taught us
+- Check out real mission photos and a few fun facts
 
-This project is being created not only for the NASA Space Apps Challenge, but also out of genuine curiosity, enjoyment and a passion for making space exploration history interesting and accessible.
+## Why we think it matters
 
-## 🎯 Project Objective
+A mission ends, but the things it left behind don't just vanish. They're still up there, like little time capsules. A silent rover or an empty rocket stage still says something about what people pulled off. We think that's worth remembering, not just the launch day.
 
-Our main objective is to create an engaging educational experience that helps people:
+## A note on AI (Super Intelligence)
 
-- Discover human-made objects left on the Moon.
-- Understand the purpose of different space exploration missions.
-- Learn why certain equipment was left behind.
-- Explore the scientific contributions of these objects.
-- Understand how past missions continue to contribute to space science.
+We used ChatGPT while building this, mostly to help with the code. It helped us write and fix JavaScript, set up the 3D parts in Three.js, and get the clickable markers and story pages working. We went through everything it gave us and changed it to fit before using it.
 
-## 🌙 Key Features
+The idea is ours though. We came up with the concept, chose to make it a 3D experience, researched and wrote the stories (they live in the `/story` folder), and picked and double-checked the mission facts. We also tested everything and put it all together.
 
-### 1. Interactive 3D Moon Exploration
+## Data and resources
 
-- Explore a 3D representation of the Moon.
-- Rotate and zoom to examine its surface.
-- Discover interesting lunar locations.
-- Explore highlighted mission sites.
-
-### 2. Clickable Location Markers
-
-- Discover marked locations on the lunar surface.
-- Select a location to learn about an object or mission.
-- Explore the history of equipment left behind.
-
-### 3. Interactive Storytelling
-
-Each story can explore details such as:
-
-- Object name and description.
-- Associated space mission.
-- Purpose of the equipment.
-- Why it was left on the Moon.
-- Its current status, where known.
-- Scientific discoveries and contributions.
-
-### 4. Mission Photographs and Discoveries
-
-Explore photographs, historical information and interesting facts about lunar missions and the objects they left behind.
-
-## 🌍 Why This Project Matters
-
-Space exploration has a history that extends far beyond the missions themselves.
-
-The objects left on the Moon represent technological achievements, scientific experiments and milestones in human exploration.
-
-Even when a mission ends, the things it leaves behind can continue to tell its story.
-
-## 🧠 Use of Super Intelligence (SI)
-
-Super Intelligence tools were used during development to accelerate the technical implementation of **Beyond the Mission**.
-
-**Tool used:** ChatGPT (Large Language Model)
-
-### How SI was used
-
-ChatGPT assisted with:
-
-- Generating and refining portions of the JavaScript code.
-- Implementing parts of the interactive 3D experience using Three.js.
-- Assisting with the implementation of location markers, selection logic and interactive UI components.
-- Improving existing code.
-- Assisting with the Markdown-based storytelling system and navigation.
-
-All SI-assisted code is reviewed, adapted and integrated as part of the project's development.
-
-### What was created by Us
-
-The core project idea, its purpose, creative direction and overall experience were conceived by us.
-
-We are responsible for:
-
-- The concept of telling the stories of human-made objects left behind on the Moon.
-- The decision to present these stories through an interactive 3D planetary experience.
-- The project's creative direction and user experience goals.
-- Researching, writing and organizing the stories in the `/story` directory.
-- Selecting and verifying the historical information and mission details included in the project.
-- Testing, reviewing and integrating the technical implementation.
-
-## Data And Resources
+The Moon and Mars maps/textures are from NASA / USGS:
 - [Mars Viking Global Color Mosaic 925m](https://astrogeology.usgs.gov/search/map/mars_viking_global_color_mosaic_925m)
 - [Moon LRO LROC WAC Global Morphology Mosaic 100m](https://astrogeology.usgs.gov/search/map/moon_lro_lroc_wac_global_morphology_mosaic_100m)
 
-## 🏆 Challenge Information
+The story pages also use NASA photos and mission data. There's a credit and source link under every image.
 
-**Event:** NASA International Space Apps Challenge 2026
+## Challenge info
 
-**Challenge:** Abandoned but not Forgotten: Storytelling about NASA's Discarded Equipment on the Moon and Mars
-
-**Project Name:** Beyond the Mission
-
-**Project Type:** Interactive 3D Educational Experience
-
-**Initial Focus:** Moon Exploration
+- **Event:** NASA International Space Apps Challenge 2026
+- **Challenge:** Abandoned but not Forgotten: Storytelling about NASA's Discarded Equipment on the Moon and Mars
+- **Project:** Beyond the Mission
+- **Type:** interactive 3D educational experience
 
 ---
 
-*Built with curiosity, creativity and a passion for space exploration.*
+*made because we think space is cool.*
 
-**Even after a mission ends, its story should never be forgotten. 🌕🚀**
+**a mission can end. its story doesn't have to. 🌕**
