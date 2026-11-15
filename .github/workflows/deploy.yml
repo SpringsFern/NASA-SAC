@@ -32,10 +32,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify Moon model
+      - name: Verify planetary surface textures
         run: |
-          ls -lh public/models/moon_topo_small.glb
-          file public/models/moon_topo_small.glb
+          ls -lh public/textures/moon_gray_8k.jpg
+          ls -lh public/textures/moon_gray_16k.jpg
+          ls -lh public/textures/mars_color.jpg
 
       - name: Build website
         run: npm run build

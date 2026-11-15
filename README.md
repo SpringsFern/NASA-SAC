@@ -6,6 +6,8 @@
 
 > Every mission leaves a mark. Every abandoned object has a story worth remembering.
 
+[Live Demo (GitHub Pages)](https://springsfern.github.io/NASA-SAC/)
+
 ## 🚀 About the Project
 
 **Beyond the Mission** is an interactive 3D storytelling experience that explores the human-made objects and scientific equipment left behind on the Moon and, in future versions, Mars.
@@ -99,9 +101,9 @@ We are responsible for:
 - Selecting and verifying the historical information and mission details included in the project.
 - Testing, reviewing and integrating the technical implementation.
 
-## Datasets
+## Data And Resources
 - [Mars Viking Global Color Mosaic 925m](https://astrogeology.usgs.gov/search/map/mars_viking_global_color_mosaic_925m)
-- [Moon Color Map and Height Map](https://svs.gsfc.nasa.gov/14959/)
+- [Moon LRO LROC WAC Global Morphology Mosaic 100m](https://astrogeology.usgs.gov/search/map/moon_lro_lroc_wac_global_morphology_mosaic_100m)
 
 ## 🏆 Challenge Information
 

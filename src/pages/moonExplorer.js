@@ -2,6 +2,7 @@ import { createScene } from '../scene/scene.js';
 import { loadMoon } from '../moon/moon.js';
 import { loadMars } from '../mars/mars.js';
 import { marsCoordinatesToUV, marsDirectionFromCoordinates } from '../mars/marsCoordinates.js';
+import { moonCoordinatesToUV, moonDirectionFromCoordinates } from '../moon/moonCoordinates.js';
 import { applySurfacePainting } from '../moon/surfacePainting.js';
 import { createSiteManager } from '../sites/siteManager.js';
 import { createSitePicker } from '../sites/sitePicker.js';
@@ -17,7 +18,9 @@ export function createMoonExplorerPage({ stories, navigate, planet = 'moon' }) {
       <p class="eyebrow">${isMars ? 'INTERACTIVE MARS MAP' : 'INTERACTIVE LUNAR MAP'}</p>
       <h1>${planetName}</h1>
       <p>Rotate ${isMars ? 'Mars' : 'the Moon'} and select a highlighted location to explore its story.</p>
-      ${isMars ? '<p class="planet-preview-note">Surface: Viking Colorized Global Mosaic (925 m)' : ''}
+      ${isMars
+        ? '<p class="planet-preview-note">Map: Viking Global Colour Mosaic · 925 m/pixel</p>'
+        : '<p class="planet-preview-note">Map: LRO WAC Global Grayscale Mosaic · 100 m/pixel source</p>'}
     </div>
     <div class="moon-stage">
       <div class="moon-loading">Preparing ${isMars ? 'Mars' : 'lunar'} exploration...</div>
@@ -66,11 +69,11 @@ export function createMoonExplorerPage({ stories, navigate, planet = 'moon' }) {
     resizeObserver.observe(stage);
 
     try {
-      // Mars uses a sphere textured from the Viking GeoTIFF conversion.
-      // Moon rendering and selection remain unchanged.
+      // Moon and Mars share the same equirectangular sphere renderer.
+      // Each planet retains its own georeferencing conversion for markers.
       const result = await loadPlanet(scene, (percent) => {
         if (!disposed) loading.textContent = `Loading ${planetName} preview... ${percent}%`;
-      });
+      }, renderer.capabilities.maxTextureSize);
 
       if (disposed) {
         sceneParts.renderer.dispose();
@@ -86,7 +89,10 @@ export function createMoonExplorerPage({ stories, navigate, planet = 'moon' }) {
             directionFromCoordinates: marsDirectionFromCoordinates,
             getSiteUV: marsCoordinatesToUV
           }
-        : undefined;
+        : {
+            directionFromCoordinates: moonDirectionFromCoordinates,
+            getSiteUV: moonCoordinatesToUV
+          };
 
       siteManager = createSiteManager(moon, moonFrame, stories, siteOptions);
       surfacePainting = applySurfacePainting(
@@ -113,7 +119,7 @@ export function createMoonExplorerPage({ stories, navigate, planet = 'moon' }) {
       if (!disposed) {
         const requiredAsset = isMars
           ? 'public/textures/mars_color.jpg'
-          : 'public/models/moon_topo_small.glb';
+          : 'public/textures/moon_gray_8k.jpg and public/textures/moon_gray_16k.jpg';
         loading.textContent = `The ${planetName} preview could not be loaded. Check that ${requiredAsset} exists.`;
         loading.classList.add('has-error');
       }

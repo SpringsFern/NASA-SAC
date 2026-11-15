@@ -1,42 +1,18 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { loadPlanetSphere } from '../planets/sphere.js';
 
-const MOON_MODEL = `${import.meta.env.BASE_URL}models/moon_topo_small.glb`;
+const MOON_TEXTURE_8K = `${import.meta.env.BASE_URL}textures/moon_gray_8k.jpg`;
+const MOON_TEXTURE_16K = `${import.meta.env.BASE_URL}textures/moon_gray_16k.jpg`;
 
-export function loadMoon(scene, onProgress) {
-  return new Promise((resolve, reject) => {
-    const loader = new GLTFLoader();
+export function loadMoon(scene, onProgress, maxTextureSize = 8192) {
+  const textureUrl = maxTextureSize >= 16384
+    ? MOON_TEXTURE_16K
+    : MOON_TEXTURE_8K;
 
-    loader.load(
-      MOON_MODEL,
-      (gltf) => {
-        const moon = gltf.scene;
-        const bounds = new THREE.Box3().setFromObject(moon);
-        const center = bounds.getCenter(new THREE.Vector3());
-        const size = bounds.getSize(new THREE.Vector3());
-        const maxDimension = Math.max(size.x, size.y, size.z);
-
-        if (!Number.isFinite(maxDimension) || maxDimension === 0) {
-          reject(new Error('The Moon model has invalid dimensions.'));
-          return;
-        }
-
-        const moonFrame = new THREE.Group();
-
-        moon.position.sub(center);
-        moon.scale.setScalar(2 / maxDimension);
-
-        moonFrame.add(moon);
-        scene.add(moonFrame);
-
-        resolve({ moon, moonFrame, radius: 1 });
-      },
-      (progress) => {
-        if (progress.total > 0 && onProgress) {
-          onProgress(Math.round((progress.loaded / progress.total) * 100));
-        }
-      },
-      reject
-    );
+  return loadPlanetSphere(scene, {
+    name: 'Moon',
+    textureUrl,
+    onProgress,
+    widthSegments: 384,
+    heightSegments: 192
   });
 }
