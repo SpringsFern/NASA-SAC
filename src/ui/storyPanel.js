@@ -14,12 +14,16 @@ export function createStoryPanel(container, navigate, planet = 'moon') {
     <p class="quick-story-description"></p>
     <p class="quick-story-fact"></p>
     <a class="quick-story-link" hidden>Read the full story →</a>
+    <div class="quick-story-trek">
+      <p class="quick-story-coordinates"></p>
+    </div>
   `;
 
   container.appendChild(panel);
 
   const closeButton = panel.querySelector('.quick-story-close');
   const storyLink = panel.querySelector('.quick-story-link');
+  const coordinatesText = panel.querySelector('.quick-story-coordinates');
 
   closeButton.addEventListener('click', hide);
 
@@ -46,6 +50,16 @@ export function createStoryPanel(container, navigate, planet = 'moon') {
     } else {
       storyLink.removeAttribute('href');
       storyLink.hidden = true;
+    }
+
+    const hasCoordinates =
+      Number.isFinite(site.latitude) && Number.isFinite(site.longitude);
+
+    if (hasCoordinates) {
+      coordinatesText.textContent =
+        `LAT ${site.latitude.toFixed(6)}°  ·  LON ${site.longitude.toFixed(6)}°`;
+    } else {
+      coordinatesText.textContent = 'Coordinates unavailable';
     }
 
     panel.classList.add('is-visible');
